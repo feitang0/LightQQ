@@ -132,7 +132,7 @@ QByteArray SmartQQ::hexchar2bin(const QByteArray &str)
     return result;
 }
 
-QByteArray SmartQQ::hashValue(const QByteArray &x, const QByteArray &K)
+QByteArray SmartQQ::hashValue2(const QByteArray &x, const QByteArray &K)
 {
     QByteArray T = "";
     QByteArray N = "";
@@ -167,6 +167,40 @@ QByteArray SmartQQ::hashValue(const QByteArray &x, const QByteArray &K)
     }
     return T;
 }
+
+QByteArray SmartQQ::hashValue(const QByteArray &b, const QByteArray &j)
+{
+    //QByteArray a = "0000";
+    int a[4] = { 0, 0, 0, 0 };
+    for (int i = 0; i < j.length(); i++)
+        a[i % 4] ^= QChar(j.at(i)).unicode();
+
+    QByteArray W[2] = { "EC", "OK" };
+    //QByteArray d = "0000";
+    int d[4];
+    d[0] = b.toLongLong() >> 24 & 255 ^ QChar(W[0].at(0)).unicode();
+    d[1] = b.toLongLong() >> 16 & 255 ^ QChar(W[0].at(1)).unicode();
+    d[2] = b.toLongLong() >> 8 & 255 ^ QChar(W[1].at(0)).unicode();
+    d[3] = b.toLongLong() & 255 ^ QChar(W[1].at(1)).unicode();
+
+    //QByteArray WW = "00000000";
+    int WW[8];
+    for (int i = 0; i < 8; i++)
+        WW[i] = i % 2 == 0 ? a[i >> 1] : d[i >> 1];
+
+    QByteArray aa [] = {
+        "0", "1", "2", "3", "4", "5", "6", "7",
+        "8", "9", "A", "B", "C", "D", "E", "F"
+    };
+    QByteArray dd = "";
+    for (int i = 0; i < 8; i++)
+    {
+        dd += aa[WW[i] >> 4 & 15];
+        dd += aa[WW[i] & 15];
+    }
+    return dd;
+}
+
 
 void SmartQQ::setHeaderBase(QNetworkRequest &request)
 {
@@ -444,6 +478,7 @@ void SmartQQ::getUserFriends2(QHash<QString, Friend> &friendsHash, QHash<int, QS
     if (reply->error() == QNetworkReply::NoError)
     {
         page = reply->readAll();
+        qDebug() << "page is " << page << endl;
         reply->deleteLater();
         int retcode;
         QJsonParseError error;

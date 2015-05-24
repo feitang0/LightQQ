@@ -38,6 +38,7 @@ private:
     QByteArray getPuin(const QByteArray &uin);
     QByteArray hexchar2bin(const QByteArray &str);
     QByteArray hashValue(const QByteArray &x, const QByteArray &K);
+    QByteArray hashValue2(const QByteArray &x, const QByteArray &K);
 
     void setHeaderBase(QNetworkRequest &request);   // 设置基本的Http request头部
     QString get_t();
